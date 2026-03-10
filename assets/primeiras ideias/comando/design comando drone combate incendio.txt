@@ -1,0 +1,17 @@
+coisinho de fogo - detecção de chama (manter ligado led vermelho)
+bateria - aos 30% piscar amarelo led
+co2 - detecta co2 manter led vermelho ligado
+4 leds verdes- representa os 4 motores e se estão a funcionar bem
+
+on/off - desliga/liga drone no geral imediato
+emergency STOP - lentamente descer drone
+emergency STOP (bateria) - aos 10% bateria efectuar auto emergency STOP
+
+
+transmitir/receber info atraves das antenas/transmissores e receptors para meter os leds e emergency stops/on,off
+
+
+meter antenas??
+
+
+modelo comando, imprimir 3d
