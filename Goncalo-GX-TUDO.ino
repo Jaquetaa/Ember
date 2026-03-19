@@ -44,7 +44,7 @@ const int RAMP_DELAY      = 40;
 #define FLAME_PIN       14
 #define MQ7_PIN         15
 #define FLAME_THRESHOLD 1000
-#define CO_PPM_LIMITE   500
+#define CO_PPM_LIMITE   140
 #define CONFIRMACOES    3
 #define PREHEAT_MS      180000UL
 
