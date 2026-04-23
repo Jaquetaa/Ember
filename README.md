@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/Jaquetaa/Ember/blob/progresso/assets/logo/ember%20logo.png?raw=true" alt="Ember" width="800"/>
+  <img src="https://github.com/Jaquetaa/Ember/blob/progresso/assets/logo/ember%20logo%20bg.png?raw=true" alt="Ember" width="800"/>
 </p>
 
 <h3 align="center">Projeto Ember | Prova de Aptidão Profissional</h3>
@@ -66,3 +66,5 @@ Tudo com os seus respectivos preços.
 > **Ainda temos que atualizar os nossos ficheiros de Excel.**
 > 
 > Como ainda estamos a fazer o projeto, não sabemos se vamos precisar de mais equipamento á ultima da hora, como já foi o caso.
+
+---
