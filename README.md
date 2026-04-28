@@ -32,11 +32,11 @@ Estamos a fazer este projeto usando o software ~~[Arduino IDE](https://www.ardui
 
 #### Gonçalo Teixeira
 
-Vai ser responsável pela montagem e apresentação do **[drone](https://github.com/Jaquetaa/Ember/tree/tiago)**.
+Vai ser responsável pela montagem e apresentação do **[drone](https://github.com/Jaquetaa/Ember/tree/gon%C3%A7alo)**.
 
 #### Tiago Brito
 
-Vai ser responsável pela montagem e apresentação do **[comando](https://github.com/Jaquetaa/Ember/tree/gon%C3%A7alo)**.
+Vai ser responsável pela montagem e apresentação do **[comando](https://github.com/Jaquetaa/Ember/tree/tiago)**.
 
 ---
 
