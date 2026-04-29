@@ -9,7 +9,7 @@
 > [!CAUTION]
 > **Esta branch é apenas para os ficheiros relacionados á Prova de Aptidão Profissional!**
 >
-> Atualmente, isto ainda está por fazer. Todo o código pode ser achado nas branches **[Gonçalo (Drone)](https://github.com/Jaquetaa/Ember/tree/gon%C3%A7alo)** e **[Tiago (Comando)](https://github.com/Jaquetaa/Ember/tree/tiago)**.
+> Isto ainda está por fazer. Todo o código pode ser achado nas branches **[Gonçalo (Drone)](https://github.com/Jaquetaa/Ember/tree/gon%C3%A7alo)** e **[Tiago (Comando)](https://github.com/Jaquetaa/Ember/tree/tiago)**.
 
 ---
 
