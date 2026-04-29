@@ -7,7 +7,7 @@
 ---
 
 > [!CAUTION]
-> **Esta branch é apenas usada para backups de progresso antigos!**
+> **Este projeto é dividido em duas partes!**
 >
 > As branch's com o nosso progresso atual foram divididas já que são dois microcontroladores.
 > 
