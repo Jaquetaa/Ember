@@ -23,7 +23,7 @@ Estamos a fazer este projeto usando o software ~~[Arduino IDE](https://www.ardui
 
 
 > [!IMPORTANT]
-> **Este projecto é para ser executado através do [VSCode](https://code.visualstudio.com/) usando a extensão [PlatformIO](https://platformio.org/install/ide?install=vscode).**
+> **Este projeto é para ser executado através do [VSCode](https://code.visualstudio.com/) usando a extensão [PlatformIO](https://platformio.org/install/ide?install=vscode).**
 
 ---
 
