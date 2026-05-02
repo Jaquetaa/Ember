@@ -4,7 +4,7 @@
 #include <Arduino.h>
 
 #define FLAME_THRESHOLD 500
-#define CO_PPM_LIMITE   160.0f
+#define CO_PPM_LIMITE   200.0f
 #define CONFIRMACOES    3
 #define PREHEAT_MS      180000UL
 

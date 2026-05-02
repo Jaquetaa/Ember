@@ -1,4 +1,4 @@
-#ifndef EMBER_ESC_H
+ #ifndef EMBER_ESC_H
 #define EMBER_ESC_H
 
 #include <Arduino.h>
@@ -18,6 +18,7 @@ public:
   bool begin(uint8_t pin1, uint8_t pin2, uint8_t pin3, uint8_t pin4);
   void writeAll(int us);
   void writeWithYaw(int base, int yaw);
+  void writeWithAll(int base, int yaw, int pitch, int roll);
   void setArmed(bool arm);
   bool isArmed();
   bool isRamping();

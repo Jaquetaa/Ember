@@ -68,6 +68,27 @@ void EmberESC::writeWithYaw(int base, int yaw) {
   if (_esc[3]) _esc[3]->writeMicroseconds(constrain(base + yaw, safeMin, 2000));
 }
 
+void EmberESC::writeWithAll(int base, int yaw, int pitch, int roll) {
+  if (!_armed) return;
+  int safeMin = THROTTLE_ARM + 50;
+
+  // Motor 0 — Frente-Esquerda
+  if (_esc[0]) _esc[0]->writeMicroseconds(
+    constrain(base + yaw + pitch + roll, safeMin, 2000));
+
+  // Motor 1 — Frente-Direita
+  if (_esc[1]) _esc[1]->writeMicroseconds(
+    constrain(base - yaw + pitch - roll, safeMin, 2000));
+
+  // Motor 2 — Tras-Direita
+  if (_esc[2]) _esc[2]->writeMicroseconds(
+    constrain(base - yaw - pitch - roll, safeMin, 2000));
+
+  // Motor 3 — Tras-Esquerda
+  if (_esc[3]) _esc[3]->writeMicroseconds(
+    constrain(base + yaw - pitch + roll, safeMin, 2000));
+}
+
 void EmberESC::setArmed(bool arm) {
   if (arm && !_armed) {
     _armed = true;

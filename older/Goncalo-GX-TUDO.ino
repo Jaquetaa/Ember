@@ -170,7 +170,7 @@ void setup() {
   }
   radio.setChannel(76);
   radio.setDataRate(RF24_250KBPS);
-  radio.setPALevel(RF24_PA_LOW);
+  radio.setPALevel(RF24_PA_MAX);
   radio.setAutoAck(true);
   radio.enableAckPayload();
   radio.openReadingPipe(1, ADDRESS);

@@ -101,7 +101,7 @@ void setup() {
   if (nrfOK) {
     radioTherm.setChannel(2);               // Canal 2 — fora da zona WiFi
     radioTherm.setDataRate(RF24_250KBPS);    // 250kbps = maxima sensibilidade = mais alcance
-    radioTherm.setPALevel(RF24_PA_HIGH);      // Potencia maxima de transmissao
+    radioTherm.setPALevel(RF24_PA_MAX);      // Potencia maxima de transmissao
     radioTherm.setAutoAck(false);            // Sem ACK — streaming unidirecional
     radioTherm.setPayloadSize(25);           // 1 byte index + 24 bytes dados
     radioTherm.setCRCLength(RF24_CRC_DISABLED); // Sem CRC — menos overhead

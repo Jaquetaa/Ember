@@ -9,6 +9,8 @@ struct PayloadCtrl {
   uint8_t armed;
   int16_t throttle;
   int16_t yaw;
+  int16_t pitch;
+  int16_t roll;
 };
 
 class EmberControlRX {

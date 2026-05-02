@@ -20,6 +20,13 @@ private:
   uint32_t _frameCount = 0;
   float   *_mlxFrame = nullptr;
   uint8_t *_thermalData = nullptr;
+
+  // Maquina de estados nao-bloqueante:
+  //  0 = IDLE (espera intervalo entre frames)
+  //  1 = TX_BURST (a enviar pacotes em batches)
+  uint8_t  _state = 0;
+  uint8_t  _txIndex = 0;        // proximo pacote (0..31) a enviar no burst
+  uint32_t _lastFrameMs = 0;    // millis() do inicio do ultimo frame
 };
 
 #endif
