@@ -1,0 +1,72 @@
+ecrã:
+vcc
+gnd
+cs 41
+reset 42
+dc/rs 21
+mosi 47
+sck 48
+led 45
+miso 16
+
+ecrã touch (não quero que faça nada só quero os pinos definidos no código caso no futuro queira implementar):
+NOTA: GPIO35, 36, 37 são RESERVADOS no ESP32-S3-WROOM-1 (flash/PSRAM interno) — NÃO USAR
+t_clk 15
+t_cs 7
+t_din 6
+t_do 16
+t_irq 39
+
+joystick left:
+vcc
+gnd
+x 5
+y 4
+
+joystick right:
+vcc
+gnd
+x 1
+y 2
+
+transceptor normal:
+vcc
+gnd
+csn 13
+ce 14
+mosi 47
+miso 16
+sck 48
+
+transceptor thermal:
+vcc
+gnd
+csn 11
+ce 12
+mosi 47
+miso 16
+sck 48
+
+buzzer gás (dedicado ao sensor de gás, agora novo e separado)
+gnd
+pin 10
+
+buzzer chama (dedicado ao sensor de chama, agora novo e separado)
+gnd
+pin 9
+
+led amarelo gás (dedicado ao sensor de gás, agora novo e separado)
+gnd
+pin 3
+
+led vermelho chama (dedicado ao sensor de chama, agora novo e separado)
+gnd
+pin 8
+
+botão on/off
+gnd
+pin 17
+
+botão emergency
+gnd
+pin 18
