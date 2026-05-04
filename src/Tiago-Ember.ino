@@ -13,8 +13,7 @@
 // Joystick esquerdo: Y=GPIO1  | X=GPIO2  (throttle/yaw)
 // Joystick direito:  Y=GPIO4  | X=GPIO5  (pitch/roll)
 // Botoes:   ARM=GPIO17 | STOP=GPIO18
-// Alarme:   Buzzer gas=GPIO10 | LED gas=GPIO3
-//           Buzzer chama=GPIO9 | LED chama=GPIO8
+// Alarme:   Buzzer (unico passivo)=GPIO10 | LED gas=GPIO3 | LED chama=GPIO8
 //
 // Payload enviado (9 bytes — struct PayloadCtrl):
 //   armed:    0 = desarmado, 1 = armado
@@ -32,9 +31,9 @@
 #include <TFT_eSPI.h>
 
 #include "EmberJoystick.h"
-#include "EmberAlarm.h"
-#include "EmberControlTX.h"
-#include "EmberThermalRX.h"
+#include "EmberBuzzer.h"
+#include "EmberNRFTX.h"
+#include "EmberDisplayRX.h"
 
 // ── Pinos ───────────────────────────────────────────────
 #define SPI_SCK   48
@@ -47,13 +46,12 @@
 // ── Objectos simples (sem RF24/TFT — construtores seguros) ─────────────
 EmberJoystick joystick(1, 2);   // esquerdo: Y=1, X=2
 EmberJoystick joystickR(4, 5);  // direito:  Y=4, X=5
-EmberAlarm    alarme(10, 3, 0);     // gas:   buzzer=10, LED=3, LEDC canal 0 (Timer 0)
-EmberAlarm    alarmeFogo(9, 8, 2);  // chama: buzzer=9,  LED=8, LEDC canal 2 (Timer 1)
+EmberBuzzer   buzzer;           // buzzer unico: buzz=GPIO10, ledGas=GPIO3, ledFire=GPIO8
 
 // ── Objectos com RF24/TFT — criados em setup() para evitar crash ───────
-EmberControlTX* controlTX = nullptr;
-EmberThermalRX* thermalRX = nullptr;
-TFT_eSPI*       tft       = nullptr;
+EmberNRFTX* nrfTX  = nullptr;
+EmberDisplayRX* displayRX = nullptr;
+TFT_eSPI*   tft    = nullptr;
 
 // ── Estado ──────────────────────────────────────────────
 bool armed = false;
@@ -109,13 +107,10 @@ void setup() {
   Serial.print("[SETUP]   Raw X (roll):  "); Serial.println(analogRead(5));
   Serial.println("[SETUP]   Joystick direito OK");
 
-  // ── Alarme ──────────────────────────────────────────
-  Serial.println("[SETUP] Iniciando alarme gas (buzzer=GPIO10, LED=GPIO3)...");
-  alarme.begin();
-  Serial.println("[SETUP]   Alarme gas OK");
-  Serial.println("[SETUP] Iniciando alarme chama (buzzer=GPIO9, LED=GPIO8)...");
-  alarmeFogo.begin();
-  Serial.println("[SETUP]   Alarme chama OK");
+  // ── Buzzer ──────────────────────────────────────────
+  Serial.println("[SETUP] Iniciando buzzer (buzz=GPIO10, ledGas=GPIO3, ledFire=GPIO8)...");
+  buzzer.begin(10, 3, 8);
+  Serial.println("[SETUP]   Buzzer OK");
 
   // ── Backlight ───────────────────────────────────────
   Serial.println("[SETUP] Ativando backlight TFT (GPIO45 = HIGH)...");
@@ -152,32 +147,32 @@ void setup() {
   Serial.println("[SETUP]   >>> TFT OK <<<");
 
   // ── NRF Controlo ────────────────────────────────────
-  Serial.println("[SETUP] Criando EmberControlTX (CE=GPIO14, CSN=GPIO13)...");
-  controlTX = new EmberControlTX(14, 13);
-  Serial.println("[SETUP]   Objeto EmberControlTX criado");
+  Serial.println("[SETUP] Criando EmberNRFTX (CE=GPIO14, CSN=GPIO13)...");
+  nrfTX = new EmberNRFTX(14, 13);
+  Serial.println("[SETUP]   Objeto EmberNRFTX criado");
 
-  Serial.println("[SETUP] Chamando controlTX->begin(SPI)...");
-  bool nrfCtrlOk = controlTX->begin(SPI);
+  Serial.println("[SETUP] Chamando nrfTX->begin(SPI)...");
+  bool nrfCtrlOk = nrfTX->begin(SPI);
   if (nrfCtrlOk) {
-    Serial.println("[SETUP]   >>> NRF Controlo OK: canal=76, 250KBPS, ACK <<<");
+    Serial.println("[SETUP]   >>> NRF TX OK: canal=76, 250KBPS, ACK <<<");
   } else {
-    Serial.println("[SETUP]   !!! NRF Controlo FALHOU — verifica ligacoes CE/CSN/VCC !!!");
+    Serial.println("[SETUP]   !!! NRF TX FALHOU — verifica ligacoes CE/CSN/VCC !!!");
     Serial.println("[SETUP]       CE=GPIO14, CSN=GPIO13, VCC=3.3V");
     Serial.println("[SETUP]       MOSI=47, MISO=16, SCK=48");
     tft->setCursor(0, 160);
     tft->setTextColor(TFT_RED);
-    tft->print("NRF CTRL: FALHOU!");
+    tft->print("NRF TX: FALHOU!");
     tft->setTextColor(TFT_GREEN);
   }
 
   // ── NRF Termico ─────────────────────────────────────
-  Serial.println("[SETUP] Criando EmberThermalRX (CE=GPIO12, CSN=GPIO11)...");
-  thermalRX = new EmberThermalRX(12, 11);
-  Serial.println("[SETUP]   Objeto EmberThermalRX criado");
+  Serial.println("[SETUP] Criando EmberDisplayRX (CE=GPIO12, CSN=GPIO11)...");
+  displayRX = new EmberDisplayRX(12, 11);
+  Serial.println("[SETUP]   Objeto EmberDisplayRX criado");
 
-  Serial.println("[SETUP] Chamando thermalRX->begin(SPI, *tft)...");
-  thermalRX->begin(SPI, *tft);
-  Serial.println("[SETUP]   thermalRX->begin() concluido");
+  Serial.println("[SETUP] Chamando displayRX->begin(SPI, *tft)...");
+  displayRX->begin(SPI, *tft);
+  Serial.println("[SETUP]   displayRX->begin() concluido");
 
   // ── Leitura inicial dos joysticks ───────────────────
   Serial.println("[SETUP] Leituras iniciais dos joysticks:");
@@ -200,10 +195,14 @@ void setup() {
   tft->print("EMBER OK");
   tft->setCursor(10, 40);
   tft->setTextColor(nrfCtrlOk ? TFT_GREEN : TFT_RED);
-  tft->print(nrfCtrlOk ? "NRF CTRL: OK" : "NRF CTRL: FAIL");
+  tft->print(nrfCtrlOk ? "NRF TX: OK" : "NRF TX: FAIL");
   tft->setCursor(10, 70);
   tft->setTextColor(TFT_CYAN);
   tft->print("DESARMADO");
+  tft->setTextSize(2);
+  tft->setTextColor(TFT_WHITE);
+  tft->setCursor(5, 300);
+  tft->print("ESPERANDO CONEXAO...");
 
   Serial.println("\n========================================");
   Serial.println("[EMBER] === Setup completo! Loop a iniciar ===");
@@ -221,7 +220,7 @@ void loop() {
     lastStopPress = millis();
     if (armed) Serial.println("[LOOP] !!! EMERGENCY STOP PREMIDO — desarmando !!!");
     armed = false;
-    controlTX->send(0, THROTTLE_MIN, 0, 0, 0);
+    nrfTX->send(0, THROTTLE_MIN, 0, 0, 0);
     Serial.println("[TX] Emergency STOP enviado");
   }
   lastStopBtn = stopBtn;
@@ -257,43 +256,42 @@ void loop() {
   int roll  = armed ? joystickR.readRoll()  : 0;
 
   // --- Enviar comando ---
-  bool ok = controlTX->send((uint8_t)armed, (int16_t)throttle, (int16_t)yaw,
-                             (int16_t)pitch, (int16_t)roll);
+  bool ok = nrfTX->send((uint8_t)armed, (int16_t)throttle, (int16_t)yaw,
+                          (int16_t)pitch, (int16_t)roll);
 
-  // --- Verificar estado dos sensores (com debounce: 3 leituras consecutivas iguais para armar) ---
-  uint8_t rawSensor = controlTX->getLastSensorState();
+  // --- Buzzer / alarmes de sensor (inclui fases de calibracao) ---
+  uint8_t ackByte   = nrfTX->getLastAckByte();
+  uint8_t rawSensor = ackByte & 0x03;
+
+  // Debounce do estado de sensor (4 leituras consecutivas para activar alarme;
+  // retorno a 0 é imediato).
   static uint8_t sensorPrev    = 0;
   static uint8_t sensorConfirm = 0;
   static uint8_t sensor        = 0;
 
   if (rawSensor == 0) {
     sensorConfirm = 0;
-    sensor        = 0;               // desarma imediatamente
+    sensor        = 0;
   } else {
     if (rawSensor == sensorPrev) {
-      if (sensorConfirm < 3) sensorConfirm++;
+      if (sensorConfirm < 4) sensorConfirm++;
     } else {
       sensorPrev    = rawSensor;
       sensorConfirm = 1;
     }
-    if (sensorConfirm >= 3) sensor = rawSensor;
+    if (sensorConfirm >= 4) sensor = rawSensor;
   }
 
   if (sensor != lastEstado) {
     lastEstado = sensor;
     Serial.print("[SENSOR] Estado mudou para: "); Serial.println(sensor);
-    // gas (bit 0): estados 1 e 3
-    alarme.aplicarEstado(sensor & 0x01 ? 1 : 0);
-    // chama (bit 1): estados 2 e 3
-    alarmeFogo.aplicarEstado(sensor & 0x02 ? 2 : 0);
   }
 
-  // --- Alarme ---
-  alarme.update();
-  alarmeFogo.update();
+  // Passa ao buzzer: calPhase bits do raw ACK + estado debounced
+  buzzer.update((ackByte & 0xFC) | (sensor & 0x03));
 
   // --- Thermal display ---
-  thermalRX->update();
+  displayRX->update();
 
   // --- Debug (a cada ~1s) ---
   static uint32_t lastDebug = 0;
@@ -310,16 +308,17 @@ void loop() {
     Serial.println("s");
 
     // Linha 2: estado do RF de controlo
-    uint16_t fails = controlTX->getConsecutiveFails();
-    uint32_t sent  = controlTX->getTotalSent();
-    uint32_t okCnt = controlTX->getTotalOk();
-    Serial.print("[CTRL-RF] ");
+    uint16_t fails = nrfTX->getConsecutiveFails();
+    uint32_t sent  = nrfTX->getTotalSent();
+    uint32_t okCnt = nrfTX->getTotalOk();
+    Serial.print("[NRF-TX] ");
     Serial.print(ok ? "OK  " : "FAIL");
     Serial.print(" | Falhas=");   Serial.print(fails);
     Serial.print(" | Taxa=");     Serial.print(sent > 0 ? (okCnt * 100 / sent) : 0);
     Serial.print("% (");          Serial.print(okCnt);
     Serial.print("/");            Serial.print(sent);
-    Serial.print(") | Sensor=");  Serial.print(rawSensor);
+    Serial.print(") | ACK=0x");   Serial.print(ackByte, HEX);
+    Serial.print(" Sensor=");     Serial.print(rawSensor);
     Serial.print("/");             Serial.println(sensor);
 
     // Raw ADC a cada 5s para debug de joystick
