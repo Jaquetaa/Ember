@@ -12,9 +12,10 @@
 #include <Arduino.h>
 #include <SPI.h>
 
-#include "EmberSensors.h"
-#include "EmberControlRX.h"
-#include "EmberThermalTX.h"   // header leve — sem MLX/RF24/Wire
+#include "EmberSensor.h"
+#include "EmberDroneNRF.h"
+#include "EmberCAMNRF.h"   // header leve — sem MLX/RF24/Wire
+#include "EmberCalibration.h"
 
 // LEDC directo (bypass ESP32Servo). ESP32Servo@3.1.3 no ESP32-S3 prefere
 // MCPWM para Servo em freq fixa e trava dentro de mcpwm_init() com esta
@@ -47,6 +48,12 @@
 #define FLAME_PIN 8
 #define MQ7_PIN   20
 
+// Botao de calibracao dos ESCs (active LOW, INPUT_PULLUP)
+#define CAL_BTN_PIN 3
+
+// Botao para saltar aquecimento do MQ-7 (active LOW, INPUT_PULLUP)
+#define SKIP_PREHEAT_PIN 39
+
 #define TIMEOUT_SINAL 1000UL
 
 // ── Throttle (HobbyKing 20A ESC — range 1000-2000us) ────
@@ -78,13 +85,15 @@ static inline uint32_t escUsToDuty(uint32_t us) {
 
 bool armed           = false;
 bool rampActive      = false;
+bool disarming       = false;
 int  currentThrottle = THROTTLE_MIN;
 int  targetThrottle  = THROTTLE_MIN;
 
 // ── Classes Ember (restantes) ───────────────────────────
-EmberSensors   sensores;
-EmberControlRX controlRX;
-EmberThermalTX thermalTX;
+EmberSensor       sensores;
+EmberDroneNRF     controlRX;
+EmberCAMNRF       thermalTX;
+EmberCalibration  calibration;
 
 // ── Estado radio ────────────────────────────────────────
 bool radioCtrlOK    = false;
@@ -147,16 +156,58 @@ void rampToTarget() {
     currentThrottle = targetThrottle;
     writeAllESCs(currentThrottle);
     rampActive = false;
-    Serial.println("[ESC] Ramp concluido.");
+    if (disarming) {
+      armed     = false;
+      disarming = false;
+      Serial.println("[ESC] Ramp down concluido — drone DESARMADO.");
+    } else {
+      Serial.println("[ESC] Ramp concluido.");
+    }
   }
 }
 
 void emergencyStop() {
   armed           = false;
   rampActive      = false;
+  disarming       = false;
   targetThrottle  = THROTTLE_MIN;
   currentThrottle = THROTTLE_MIN;
   writeAllESCs(THROTTLE_MIN);
+}
+
+// Callbacks para EmberCalibration
+static void calWriteAll(int us) {
+  writeAllESCs(us);
+  currentThrottle = us;
+}
+static void calOnStart() {
+  // Desarmar logica de voo; o ramp down e feito pela propria lib.
+  // Comandos de radio sao ignorados enquanto calibration.isBusy().
+  armed          = false;
+  rampActive     = false;
+  disarming      = false;
+  targetThrottle = THROTTLE_MIN;
+  lastRadioArmed = false;
+  Serial.println("[GX] Calibracao iniciada — voo bloqueado, drone surdo a comandos.");
+}
+static void calOnDone() {
+  // Pos-calibracao: garante estado seguro. So volta a armar
+  // quando o utilizador mandar ARM novo no rolante.
+  armed          = false;
+  rampActive     = false;
+  disarming      = false;
+  targetThrottle = THROTTLE_MIN;
+  currentThrottle= THROTTLE_MIN;
+  lastRadioArmed = false;
+  Serial.println("[GX] Calibracao concluida — pronto a receber novo ARM.");
+}
+
+// Empacota estado dos sensores (2 bits) + fase calibracao (3 bits)
+// num unico byte ACK. Tiago descodifica:
+//   estado   = ack & 0x03;
+//   calPhase = (ack >> 2) & 0x07;
+static inline uint8_t buildAckByte(uint8_t estado, uint8_t calPhase) {
+  return (uint8_t)((estado & 0x03) | ((calPhase & 0x07) << 2));
 }
 
 // ============================================================
@@ -460,7 +511,7 @@ void setup() {
 
   // ── Sensores ──────────────────────────────────────────
   DBG("[DEBUG] sensores.begin(FLAME, MQ7)...");
-  sensores.begin(FLAME_PIN, MQ7_PIN);
+  sensores.begin(FLAME_PIN, MQ7_PIN, SKIP_PREHEAT_PIN);
   DBG("[DEBUG] sensores.begin OK");
 
   // ── SPI ───────────────────────────────────────────────
@@ -489,6 +540,9 @@ void setup() {
     DBG("[DEBUG] thermalTX.begin OK");
   }
 
+  // ── Botao de calibracao ──────────────────────────────
+  calibration.begin(CAL_BTN_PIN, calWriteAll, calOnStart, calOnDone);
+
   DBG("[EMBER] === Pronto ===\n");
 }
 
@@ -498,6 +552,25 @@ void loop() {
   static unsigned long statPktCount  = 0;
   static unsigned long statLastPrint = 0;
   statLoopCount++;
+
+  // ── Calibracao (prioridade absoluta) ──────────────────
+  // Se o botao foi premido, suspende todo o voo ate concluir.
+  // O drone fica "surdo": ainda mantem o link radio vivo (para o
+  // ACK chegar ao Tiago com a fase de calibracao), mas descarta
+  // qualquer comando recebido sem agir sobre os ESCs.
+  calibration.update(currentThrottle);
+  if (calibration.isBusy()) {
+    if (radioCtrlOK) {
+      uint8_t ack = buildAckByte(sensores.getEstado(),
+                                 (uint8_t)calibration.getPhase());
+      controlRX.updateAckPayload(ack);
+      PayloadCtrl dummy;
+      (void)controlRX.receive(dummy);   // drena o pipe e descarta
+    }
+    sensores.update();
+    thermalTX.update();
+    return;
+  }
 
   // ── Radio (PRIMEIRO — prioridade maxima) ──────────────
   // ACK payload pre-carregado ANTES de chegar pacote. Depois
@@ -518,7 +591,9 @@ void loop() {
   bool gotCmd = false;
 
   if (radioCtrlOK) {
-    controlRX.updateAckPayload(sensores.getEstado());
+    controlRX.updateAckPayload(
+      buildAckByte(sensores.getEstado(),
+                   (uint8_t)calibration.getPhase()));
     gotCmd = controlRX.receive(cmd);
     if (gotCmd) {
       statPktCount++;
@@ -585,20 +660,30 @@ void loop() {
       radioThrottle = THROTTLE_MIN;
       radioYaw = 0; radioPitch = 0; radioRoll = 0;
     } else if (gotCmd) {
-      // Radio STOP (desarma se radio diz armed=0 e estava a controlar)
+      // Radio STOP (falling edge): ramp down gradual ate THROTTLE_MIN.
+      // currentThrottle mantem-se — rampToTarget desce passo a passo.
+      // armed so passa a false quando o ramp termina (ver rampToTarget).
       if (!radioArmed && armed && lastRadioArmed) {
-        emergencyStop();
-        Serial.println("[GX] radio DISARM");
+        if (!disarming) {
+          Serial.println("[GX] radio DISARM (ramp down)");
+          targetThrottle = THROTTLE_MIN;
+          rampActive     = true;
+          disarming      = true;
+        }
         lastRadioArmed = false;
       }
-      // Radio ARM toggle (rising edge)
+      // Radio ARM (rising edge): so arma se nao estava armado.
+      // Disarm e tratado pelo falling edge acima (com ramp).
       else if (radioArmed && !lastRadioArmed) {
-        Serial.println("[GX] radio ARM rising edge");
-        armed           = !armed;
-        targetThrottle  = armed ? THROTTLE_NORMAL : THROTTLE_MIN;
-        currentThrottle = THROTTLE_MIN;
-        rampActive      = true;
-        lastRadioArmed  = radioArmed;
+        if (!armed && !disarming) {
+          Serial.println("[GX] radio ARM (ramp up)");
+          armed           = true;
+          disarming       = false;
+          targetThrottle  = THROTTLE_NORMAL;
+          currentThrottle = THROTTLE_MIN;
+          rampActive      = true;
+        }
+        lastRadioArmed = radioArmed;
       } else {
         lastRadioArmed = radioArmed;
       }

@@ -182,8 +182,8 @@
  C:/Users/Gongas/.platformio/packages/framework-arduinoespressif32/cores/esp32/Arduino.h \
  C:/Users/Gongas/.platformio/packages/framework-arduinoespressif32/libraries/SPI/src/SPI.h \
  C:/Users/Gongas/.platformio/packages/framework-arduinoespressif32/cores/esp32/esp32-hal-spi.h \
- lib/EmberSensors/EmberSensors.h lib/EmberControlRX/EmberControlRX.h \
+ lib/EmberSensor/EmberSensor.h lib/EmberDroneNRF/EmberDroneNRF.h \
  .pio/libdeps/esp32-s3-devkitm-1/RF24/RF24.h \
  .pio/libdeps/esp32-s3-devkitm-1/RF24/RF24_config.h \
  .pio/libdeps/esp32-s3-devkitm-1/RF24/nRF24L01.h \
- lib/EmberThermalTX/EmberThermalTX.h
+ lib/EmberCAMNRF/EmberCAMNRF.h lib/EmberCalibration/EmberCalibration.h
