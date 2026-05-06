@@ -5,8 +5,16 @@
 #include <SPI.h>
 #include <RF24.h>
 
+// Valores do campo armed:
+//   0 = desarmado  — drone faz ramp down gradual
+//   1 = armado     — drone aceita throttle/yaw/pitch/roll
+//   2 = EMERGENCY  — drone corta ESCs imediatamente (sem ramp)
+#define ARMED_OFF       ((uint8_t)0)
+#define ARMED_ON        ((uint8_t)1)
+#define ARMED_EMERGENCY ((uint8_t)2)
+
 struct __attribute__((packed)) PayloadCtrl {
-  uint8_t armed;
+  uint8_t armed;    // 0=off(ramp), 1=on, 2=emergency(imediato)
   int16_t throttle;
   int16_t yaw;
   int16_t pitch;

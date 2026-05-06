@@ -66,31 +66,26 @@ bool EmberDisplayRX::begin(SPIClass &spi, TFT_eSPI &tft) {
 
 void EmberDisplayRX::buildHeatmapLUT() {
   for (int i = 0; i < 256; i++) {
-    int r, g, b;
-    if (i < 85) {
-      r = 60 + (i * 140) / 84;
-      g = 0;
-      b = 40 + (i * 140) / 84;
-    } else if (i < 150) {
-      int t = i - 85;
-      r = 200 + (t * 55) / 64;
-      g = 0;
-      b = 180 - (t * 180) / 64;
-    } else if (i < 210) {
-      int t = i - 150;
-      r = 255;
-      g = (t * 180) / 59;
-      b = 0;
+    int r, g = 0, b;
+    if (i < 128) {
+      // Ciano → Roxo: vermelho sobe, verde desce, azul sobe ao pico
+      int t = i;
+      r = (t * 255) / 127;         // 0   → 255
+      g = 180 - (t * 180) / 127;  // 180 → 0
+      b = 220 + (t * 35)  / 127;  // 220 → 255  (pico roxo = 255,0,255)
     } else {
-      int t = i - 210;
+      // Roxo → Vermelho: azul desce, vermelho e verde fixos
+      int t = i - 128;
       r = 255;
-      g = 180 + (t * 75) / 45;
-      b = 0;
+      g = 0;
+      b = 255 - (t * 255) / 127;  // 255 → 0
     }
     r = constrain(r, 0, 255);
-    g = constrain(g, 0, 255);
     b = constrain(b, 0, 255);
-    heatmapLUT[i] = (((uint16_t)r & 0xF8) << 8) | (((uint16_t)g & 0xFC) << 3) | ((uint16_t)b >> 3);
+    // pushImage envia bytes em ordem little-endian (low byte primeiro via SPI),
+    // mas o display espera high byte primeiro — byte-swap corrige o desvio.
+    uint16_t px = (((uint16_t)r & 0xF8) << 8) | (((uint16_t)g & 0xFC) << 3) | ((uint16_t)b >> 3);
+    heatmapLUT[i] = (px >> 8) | (px << 8);
   }
 }
 
@@ -155,13 +150,8 @@ void EmberDisplayRX::drawThermalSmooth() {
 }
 
 void EmberDisplayRX::drawConnectionIndicator(uint8_t state) {
-  // Clear centre text area
-  _tft->fillRect(73, 140, 334, 34, COL_BLACK);
-
   if (state == 0) {
-    // reset blink — updateConnectionBlink() handles drawing
-    _blinkVisible = false;
-    _blinkTimer = millis();
+    _blinkTimer = millis() - 1001; // forca draw imediato na proxima atualizacao
   }
 }
 
@@ -178,25 +168,17 @@ void EmberDisplayRX::updateConnectionState() {
   if (newState != prevConnState) {
     connState = newState;
     prevConnState = newState;
-    // Don't show connection indicator on the loading screen (before first frame)
-    if (newState != 0 || framesDrawn > 0) {
-      drawConnectionIndicator(connState);
-    }
+    drawConnectionIndicator(connState);
   }
 }
 
 void EmberDisplayRX::updateConnectionBlink() {
-  if (millis() - _blinkTimer < 80) return;
+  if (millis() - _blinkTimer < 1000) return;
   _blinkTimer = millis();
-  _blinkVisible = !_blinkVisible;
-
-  _tft->fillRect(73, 140, 334, 34, COL_BLACK);
-  if (_blinkVisible) {
-    _tft->setTextSize(3);
-    _tft->setTextColor(COL_WHITE);
-    _tft->setCursor(78, 148);
-    _tft->print("CONNECTION PERDIDA");
-  }
+  _tft->setTextSize(4);
+  _tft->setTextColor(COL_WHITE);
+  _tft->setCursor(24, 144);
+  _tft->print("CONNECTION PERDIDA");
 }
 
 void EmberDisplayRX::resetFrame() {
