@@ -3,7 +3,7 @@
 // ============================================
 //
 // Payload recebido (9 bytes — struct PayloadCtrl):
-//   armed:    0 = stop/desarmado, 1 = armado
+//   armed:    0 = stop/desarmado (ramp down), 1 = armado, 2 = EMERGENCY (corte imediato)
 //   throttle: microsegundos (1000-1500)
 //   yaw:      -100 a +100
 //   pitch:    -100 a +100  (frente/tras — stick direito Y)
@@ -55,6 +55,11 @@
 #define SKIP_PREHEAT_PIN 39
 
 #define TIMEOUT_SINAL 1000UL
+
+// Valores do campo PayloadCtrl::armed
+#define ARMED_OFF       ((uint8_t)0)
+#define ARMED_ON        ((uint8_t)1)
+#define ARMED_EMERGENCY ((uint8_t)2)
 
 // ── Throttle (HobbyKing 20A ESC — range 1000-2000us) ────
 const int THROTTLE_NORMAL = 1300;
@@ -597,12 +602,27 @@ void loop() {
     gotCmd = controlRX.receive(cmd);
     if (gotCmd) {
       statPktCount++;
-      radioArmed    = (cmd.armed == 1);
+      radioArmed    = (cmd.armed == ARMED_ON);
       radioThrottle = cmd.throttle;
       radioYaw      = cmd.yaw;
       radioPitch    = cmd.pitch;
       radioRoll     = cmd.roll;
     }
+  }
+
+  // ── EMERGENCY STOP (radio armed=2): corte imediato ───────
+  // Tem prioridade sobre toda a logica de arm/disarm normal.
+  // Trata-se ANTES do bloco de arming para nao disparar tambem
+  // o ramp down do "falling edge" radioArmed=false.
+  if (gotCmd && cmd.armed == ARMED_EMERGENCY) {
+    Serial.println("[GX] EMERGENCY STOP (radio armed=2) — corte imediato!");
+    emergencyStop();
+    lastRadioArmed = false;
+    radioArmed     = false;
+    radioThrottle  = THROTTLE_MIN;
+    radioYaw = 0; radioPitch = 0; radioRoll = 0;
+    thermalTX.update();
+    return;
   }
 
   // Sensores (analog reads, nao bloqueia)
@@ -679,7 +699,10 @@ void loop() {
           Serial.println("[GX] radio ARM (ramp up)");
           armed           = true;
           disarming       = false;
-          targetThrottle  = THROTTLE_NORMAL;
+          int reqThrottle = radioThrottle;
+          if      (reqThrottle <= THROTTLE_Y_LOW)  reqThrottle = THROTTLE_Y_LOW;
+          else if (reqThrottle >= THROTTLE_Y_HIGH) reqThrottle = THROTTLE_Y_HIGH;
+          targetThrottle  = reqThrottle;
           currentThrottle = THROTTLE_MIN;
           rampActive      = true;
         }
