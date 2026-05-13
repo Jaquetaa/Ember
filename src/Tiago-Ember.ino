@@ -10,8 +10,8 @@
 // TFT ST7796S (TFT_eSPI): CS=41 | DC=21 | RST=42 | BL=45
 // SPI partilhado: SCK=48 | MISO=16 | MOSI=47
 //
-// Joystick esquerdo: Y=GPIO1  | X=GPIO2  (throttle/yaw)
-// Joystick direito:  Y=GPIO4  | X=GPIO5  (pitch/roll)
+// Joystick esquerdo: Y=GPIO4  | X=GPIO5  (throttle/yaw)
+// Joystick direito:  Y=GPIO2  | X=GPIO1  (pitch/roll)
 // Botoes:   ARM=GPIO17 | STOP=GPIO18
 // Alarme:   Buzzer (unico passivo)=GPIO10 | LED gas=GPIO3 | LED chama=GPIO8
 //
@@ -44,14 +44,25 @@
 #define BTN_STOP_PIN 18
 
 // ── Objectos simples (sem RF24/TFT — construtores seguros) ─────────────
-EmberJoystick joystick(1, 2);   // esquerdo: Y=1, X=2
-EmberJoystick joystickR(4, 5);  // direito:  Y=4, X=5
+EmberJoystick joystick(4, 5);   // esquerdo: Y=4, X=5
+EmberJoystick joystickR(2, 1);  // direito:  Y=2, X=1
 EmberBuzzer   buzzer;           // buzzer unico: buzz=GPIO10, ledGas=GPIO3, ledFire=GPIO8
 
 // ── Objectos com RF24/TFT — criados em setup() para evitar crash ───────
 EmberNRFTX* nrfTX  = nullptr;
 EmberDisplayRX* displayRX = nullptr;
 TFT_eSPI*   tft    = nullptr;
+
+// ── Gradiente de fundo: azul escuro (topo) → roxo escuro (base) ─────────
+static void drawGradientBG(TFT_eSPI *t) {
+  for (int y = 0; y < 320; y++) {
+    int v = (y * 255) / 319;
+    t->drawFastHLine(0, y, 480, t->color565(v / 4, 0, 70 + v / 10));
+  }
+}
+
+// Cor de fundo aproximada a y=70 (usada no fillRect do ARM/DISARM)
+#define COL_ARMBG_565 0x0248  // color565(18, 0, 73) ≈ gradiente em y=70
 
 // ── Estado ──────────────────────────────────────────────
 bool armed = false;
@@ -94,17 +105,17 @@ void setup() {
   delay(10);
 
   // ── Joystick esquerdo ───────────────────────────────
-  Serial.println("[SETUP] Iniciando joystick ESQUERDO (Y=GPIO1, X=GPIO2)...");
+  Serial.println("[SETUP] Iniciando joystick ESQUERDO (Y=GPIO4, X=GPIO5)...");
   joystick.begin();
-  Serial.print("[SETUP]   Raw Y (throttle): "); Serial.println(analogRead(1));
-  Serial.print("[SETUP]   Raw X (yaw):      "); Serial.println(analogRead(2));
+  Serial.print("[SETUP]   Raw Y (throttle): "); Serial.println(analogRead(4));
+  Serial.print("[SETUP]   Raw X (yaw):      "); Serial.println(analogRead(5));
   Serial.println("[SETUP]   Joystick esquerdo OK");
 
   // ── Joystick direito ────────────────────────────────
-  Serial.println("[SETUP] Iniciando joystick DIREITO (Y=GPIO4, X=GPIO5)...");
+  Serial.println("[SETUP] Iniciando joystick DIREITO (Y=GPIO2, X=GPIO1)...");
   joystickR.begin();
-  Serial.print("[SETUP]   Raw Y (pitch): "); Serial.println(analogRead(4));
-  Serial.print("[SETUP]   Raw X (roll):  "); Serial.println(analogRead(5));
+  Serial.print("[SETUP]   Raw Y (pitch): "); Serial.println(analogRead(2));
+  Serial.print("[SETUP]   Raw X (roll):  "); Serial.println(analogRead(1));
   Serial.println("[SETUP]   Joystick direito OK");
 
   // ── Buzzer ──────────────────────────────────────────
@@ -135,7 +146,7 @@ void setup() {
 
   Serial.println("[SETUP] Configurando rotacao, cor, cursor...");
   tft->setRotation(1);
-  tft->fillScreen(TFT_BLACK);
+  drawGradientBG(tft);
   tft->setTextSize(2);
   tft->setTextColor(TFT_GREEN);
   tft->setCursor(50, 120);
@@ -188,7 +199,7 @@ void setup() {
   Serial.println(!digitalRead(BTN_STOP_PIN) ? "PREMIDO" : "solto");
 
   // ── Ecrã final ──────────────────────────────────────
-  tft->fillScreen(TFT_BLACK);
+  drawGradientBG(tft);
   tft->setTextSize(2);
   tft->setTextColor(TFT_GREEN);
   tft->setCursor(10, 10);
@@ -233,14 +244,14 @@ void loop() {
     armed = !armed;
     if (armed) {
       Serial.println("[TX] ARM: ON — drone armado!");
-      tft->fillRect(10, 70, 200, 25, TFT_BLACK);
+      tft->fillRect(10, 70, 200, 25, COL_ARMBG_565);
       tft->setCursor(10, 70);
       tft->setTextColor(TFT_RED);
       tft->setTextSize(2);
       tft->print("ARMADO");
     } else {
       Serial.println("[TX] ARM: OFF — drone desarmado");
-      tft->fillRect(10, 70, 200, 25, TFT_BLACK);
+      tft->fillRect(10, 70, 200, 25, COL_ARMBG_565);
       tft->setCursor(10, 70);
       tft->setTextColor(TFT_CYAN);
       tft->setTextSize(2);
@@ -328,10 +339,10 @@ void loop() {
     static uint8_t adcCount = 0;
     if (++adcCount >= 5) {
       adcCount = 0;
-      Serial.print("[ADC]  RawL_Y="); Serial.print(analogRead(1));
-      Serial.print(" RawL_X=");       Serial.print(analogRead(2));
-      Serial.print(" | RawR_Y=");     Serial.print(analogRead(4));
-      Serial.print(" RawR_X=");       Serial.println(analogRead(5));
+      Serial.print("[ADC]  RawL_Y="); Serial.print(analogRead(4));
+      Serial.print(" RawL_X=");       Serial.print(analogRead(5));
+      Serial.print(" | RawR_Y=");     Serial.print(analogRead(2));
+      Serial.print(" RawR_X=");       Serial.println(analogRead(1));
     }
   }
 }

@@ -36,11 +36,11 @@ Através do Github, decidimos dividir cada parte em branches pela organização 
 Com isto, nós decidimos dividir da seguinte forma:
 
 
-### Gonçalo Teixeira ✈️
+### Gonçalo Teixeira
 
 Vai ser responsável pela montagem, programação e apresentação do **[drone](https://github.com/Jaquetaa/Ember/tree/gon%C3%A7alo)**.
 
-### Tiago Brito 🎮
+### Tiago Brito
 
 **Vai ser responsável pela montagem, programação e apresentação do **[comando](https://github.com/Jaquetaa/Ember/tree/tiago)**.**
 

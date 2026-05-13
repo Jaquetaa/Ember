@@ -17,13 +17,13 @@ t_din 6
 t_do 16
 t_irq 39
 
-joystick left:
+joystick left (throttle up and down, yaw left and right):
 vcc
 gnd
 x 5
 y 4
 
-joystick right:
+joystick right (pitch up and down, roll left and right):
 vcc
 gnd
 x 1
@@ -47,19 +47,15 @@ mosi 47
 miso 16
 sck 48
 
-buzzer gás (dedicado ao sensor de gás, agora novo e separado)
+buzzer (único, dedicado a gás e chama):
 gnd
 pin 10
 
-buzzer chama (dedicado ao sensor de chama, agora novo e separado)
-gnd
-pin 9
-
-led amarelo gás (dedicado ao sensor de gás, agora novo e separado)
+led amarelo gás (dedicado ao sensor de gás):
 gnd
 pin 3
 
-led vermelho chama (dedicado ao sensor de chama, agora novo e separado)
+led vermelho chama (dedicado ao sensor de chama):
 gnd
 pin 8
 

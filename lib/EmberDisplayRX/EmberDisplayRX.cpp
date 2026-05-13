@@ -68,17 +68,17 @@ void EmberDisplayRX::buildHeatmapLUT() {
   for (int i = 0; i < 256; i++) {
     int r, g = 0, b;
     if (i < 128) {
-      // Ciano → Roxo: vermelho sobe, verde desce, azul sobe ao pico
+      // Azul escuro → Roxo: vermelho sobe, azul sobe de 60 a 255
       int t = i;
-      r = (t * 255) / 127;         // 0   → 255
-      g = 180 - (t * 180) / 127;  // 180 → 0
-      b = 220 + (t * 35)  / 127;  // 220 → 255  (pico roxo = 255,0,255)
+      r = (t * 255) / 127;          // 0   → 255
+      g = 0;
+      b = 60 + (t * 195) / 127;    // 60  → 255  (azul escuro → roxo)
     } else {
-      // Roxo → Vermelho: azul desce, vermelho e verde fixos
+      // Roxo → Vermelho: azul desce
       int t = i - 128;
       r = 255;
       g = 0;
-      b = 255 - (t * 255) / 127;  // 255 → 0
+      b = 255 - (t * 255) / 127;   // 255 → 0
     }
     r = constrain(r, 0, 255);
     b = constrain(b, 0, 255);
