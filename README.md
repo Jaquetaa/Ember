@@ -44,16 +44,10 @@ Este projeto foi feito utilizando o editor de código [VSCode](https://code.visu
 
 ---
 
-## Divisão do Projeto
+## Como Montar?
 
 **Este projeto usa dois microcontroladores, um para o [drone](https://github.com/Jaquetaa/Ember/tree/drone) e um para o [comando](https://github.com/Jaquetaa/Ember/tree/comando),**
 
-Os materiais estão separados conforme o "projeto" no [ficheiro excel](https://github.com/Jaquetaa/Ember/blob/arquivos/PAP%20Ember.xlsx).
-
----
-
-## Como Montar
-
-Estás na branch de arquivos, todos os materiais necessários para recriar este projeto ([listas de componentes](https://github.com/Jaquetaa/Ember/blob/arquivos/PAP%20Ember.xlsx), etc.) estão aqui.
+Todos os materiais necessários para recriar este projeto ([listas de componentes](https://github.com/Jaquetaa/Ember/blob/arquivos/PAP%20Ember.xlsx), etc.) estão aqui.
 
 **Nós não chegamos a usar as placas de circuito impresso, mas os ficheiros (e pinos) correspondem tudo, basta encomendar e montar.**
