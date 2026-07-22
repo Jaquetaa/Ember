@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/Jaquetaa/Ember/blob/progresso/assets/logo/ember%20logo%20bg.png?raw=true" alt="Ember" width="800"/>
+  <img src="https://github.com/Jaquetaa/Ember/blob/arquivos/assets/ember.png" alt="Ember" width="1400"/>
 </p>
 
 <h3 align="center">Projeto Ember | Prova de Aptidão Profissional</h3>
@@ -9,10 +9,31 @@
 > [!CAUTION]
 > **Esta branch é apenas usada para backups de progresso antigos!**
 >
-> As branch's com o nosso progresso atual foram divididas já que são dois microcontroladores.
+> As branch's do nosso nosso projeto foram divididas já que são dois microcontroladores.
 > 
-> **Todo o código pode ser achado nas branches [Gonçalo (Drone)](https://github.com/Jaquetaa/Ember/tree/gon%C3%A7alo) e [Tiago (Comando)](https://github.com/Jaquetaa/Ember/tree/tiago).**
+> **Todo o código pode ser achado nas branches [(Drone)](https://github.com/Jaquetaa/Ember/tree/drone) e [(Comando)](https://github.com/Jaquetaa/Ember/tree/comando).**
 
+---
+
+## Introdução
+
+O Ember é um sistema de deteção de incêndios florestais, composto por um drone e um comando que trabalham em conjunto para identificar focos de incêndio o mais cedo possível.
+
+Este projeto representa o culminar de tudo o que aprendemos ao longo do nosso curso no secundário.
+
+> [!WARNING]
+> **Este repositório foi disponibilizado por conveniência própria e como forma de contribuir para a comunidade.**
+>
+> **Nós não nos responsabilizamos por:**
+>
+> - Plágio ou uso indevido deste conteúdo em trabalhos de terceiros,
+> - Qualquer _misuse_ do projeto, incluindo aplicações fora do âmbito para o qual foi concebido,
+> - Danos, perdas ou prejuízos resultantes do uso do hardware, software ou informação aqui presentes,
+> - Falhas de detecção ou falsos alarmes.
+> 
+> Isto é um projeto académico e um protótipo, não certificado nem testado para uso em situações reais de emergência.
+> 
+> **A responsabilidade pela utilização deste código é de quem o usa, não nossa.**
 ---
 
 ## Sobre o Projeto
@@ -21,7 +42,9 @@ Este projeto é uma construção de um drone com a adição de um comando para a
 
 **O objetivo do drone é a detecção e prevenção de incêndios, e o comando vai pilotar o drone.**
 
-Estamos a fazer este projeto usando o software ~~[Arduino IDE](https://www.arduino.cc/en/software/)~~ & [VSCode](https://code.visualstudio.com/), que depois salvamos no Github usando [Git](https://git-scm.com/install/windows).
+Este projeto foi feito utilizando o editor de código [VSCode](https://code.visualstudio.com/) com a extensão [PlatformIO](https://platformio.org/install/ide?install=vscode).
+
+### No final, este projeto e apresentação foi avaliada com uma classificação máxima de 20/20 para ambos.
 
 ---
 
@@ -40,31 +63,21 @@ Vai ser responsável pela montagem e apresentação do **[comando](https://githu
 
 ---
 
-## Arquivos
+## Como Montar
 
-> [!WARNING]
-> **Isto ainda não está feito.**
-> 
-> Apesar por estar por fazer, existe uma [branch de arquivos](https://github.com/Jaquetaa/Ember/tree/arquivos) disponível onde estaram as coisas.
+Estás na branch de arquivos, todos os materiais necessários para recriar este projeto (listas de componentes, etc.) estão aqui.
 
-Durante o tempo, pediram-nos para fazer várias "mini-apresentações" sobre a nossa PAP, então também estaram disponíveis no futuro.
-
-Estamos a pensar em fazer as seguintes spreadsheets:
-- Equipamento Estimado
-- - Drone
-- - Comando
-- Equipamento Usado
-- - Drone
-- - Comando
-- Equipamento Queimado
-- Equipamento Não Usado
-
-Tudo com os seus respectivos preços.
-
-
-> [!WARNING]
-> **Ainda temos que atualizar os nossos ficheiros de Excel.**
-> 
-> Como ainda estamos a fazer o projeto, não sabemos se vamos precisar de mais equipamento á ultima da hora, como já foi o caso.
+**Nós não chegamos a usar as placas de circuito impresso, mas os ficheiros (e pinos) correspondem tudo, basta encomendar e montar.**
 
 ---
+
+## Empresas em Parceria
+### Um agradecimento especial às empresas que colaboraram e apoiaram este projeto:
+
+<img src="https://raw.githubusercontent.com/Jaquetaa/Ember/arquivos/assets/spacer.png" width="1" height="1"/> <p align="center"> <img src="https://raw.githubusercontent.com/Jaquetaa/Ember/arquivos/assets/empresas-big-love/aralab.png" alt="Aralab" width="41%"/> &nbsp;&nbsp;&nbsp; <img src="https://raw.githubusercontent.com/Jaquetaa/Ember/arquivos/assets/empresas-big-love/tekever.png?raw=true" alt="Tekever" width="55%"/> </p> <h3 align="center"> Um agradecimento a todas as pessoas e entidades que contribuíram para tornar este projeto possível.
+
+O vosso apoio foi fundamental ao longo deste percurso e ficará sempre reconhecido.
+
+</h3>
+
+</h3>
