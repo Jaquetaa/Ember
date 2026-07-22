@@ -1,0 +1,211 @@
+(footprint "capacitor"
+	(version 20260206)
+	(generator "pcbnew")
+	(generator_version "10.0")
+	(layer "F.Cu")
+	(descr "Capacitor 2 pin, 2.5mm pitch, 1.1mm drill, 2.2mm pad")
+	(tags "capacitor 2pin 2.5mm")
+	(property "Reference" "REF**"
+		(at 1.25 -2 0)
+		(layer "F.SilkS")
+		(uuid "9c4f6e70-2b27-4378-8337-040dae5dd830")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "capacitor"
+		(at 1.25 4 0)
+		(layer "F.Fab")
+		(uuid "965a9f0f-546e-4022-88dd-644e000b10c0")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "58470fff-ac05-4593-b60d-758b7818771d")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "cca592de-30cf-4359-9a57-318bfc7f8967")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(attr through_hole)
+	(duplicate_pad_numbers_are_jumpers no)
+	(fp_line
+		(start -1.5 -1.5)
+		(end -1.5 -0.5)
+		(stroke
+			(width 0.3)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "5e159575-b842-405f-8558-3854c3f2106c")
+	)
+	(fp_line
+		(start -1.5 -1.5)
+		(end -1.5 1.5)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "c0da0bf2-4796-4d22-816d-698bd1a3a8cc")
+	)
+	(fp_line
+		(start -1.5 -1.5)
+		(end -0.5 -1.5)
+		(stroke
+			(width 0.3)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "5557513e-f047-4bd6-bdcf-d17686294e36")
+	)
+	(fp_line
+		(start -1.5 1.5)
+		(end 4 1.5)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "92256bd3-879b-4ef0-9837-43458f8ba18c")
+	)
+	(fp_line
+		(start 4 -1.5)
+		(end -1.5 -1.5)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "86db8b0f-9c21-434d-ba96-d13e42eaa010")
+	)
+	(fp_line
+		(start 4 1.5)
+		(end 4 -1.5)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "2e9f20ed-5144-4f5f-8071-e64ccd775df8")
+	)
+	(fp_line
+		(start -2 -2)
+		(end -2 2)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "1ae941d3-d00a-446c-bcb0-d9459aac12ee")
+	)
+	(fp_line
+		(start -2 2)
+		(end 4.5 2)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "541e8fd1-ba63-4460-8a52-0034a9e157c1")
+	)
+	(fp_line
+		(start 4.5 -2)
+		(end -2 -2)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "f120623d-3e0b-4f4d-bb1c-3c31faacebe2")
+	)
+	(fp_line
+		(start 4.5 2)
+		(end 4.5 -2)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "0ff7321e-371c-401d-969d-d49a51b7695e")
+	)
+	(fp_line
+		(start -1.25 -1.25)
+		(end -1.25 1.25)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "53cb6042-f470-455c-b63d-ca6999a9445d")
+	)
+	(fp_line
+		(start -1.25 1.25)
+		(end 3.75 1.25)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "519423e8-6535-45aa-8cbc-acc416beaa73")
+	)
+	(fp_line
+		(start 3.75 -1.25)
+		(end -1.25 -1.25)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "15fca786-dc2a-46d4-ad0c-7d63371c155b")
+	)
+	(fp_line
+		(start 3.75 1.25)
+		(end 3.75 -1.25)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "4fd720d2-5d89-4aeb-890d-79a24f8c4f41")
+	)
+	(pad "1" thru_hole rect
+		(at 0 0)
+		(size 2.2 2.2)
+		(drill 1.1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "4aa0a0be-661a-4145-aab1-0d2770ecc8bf")
+	)
+	(pad "2" thru_hole circle
+		(at 2.5 0)
+		(size 2.2 2.2)
+		(drill 1.1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "5d7ee28e-bf1e-4828-a601-ae1d764b1670")
+	)
+	(embedded_fonts no)
+)

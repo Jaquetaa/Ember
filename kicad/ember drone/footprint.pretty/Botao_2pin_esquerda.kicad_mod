@@ -1,0 +1,31 @@
+(footprint "Botao_2pin_esquerda"
+  (version 20240108)
+  (generator "hand_created")
+  (layer "F.Cu")
+  (descr "Botao 2 pinos esquerda, 5.08mm pitch, 2.2mm pad, 1.1mm drill")
+  (tags "botao button 2pin")
+  (attr through_hole)
+
+  (fp_text reference "REF**" (at 0 2.5) (layer "F.SilkS")
+    (effects (font (size 1 1) (thickness 0.15)))
+  )
+  (fp_text value "Botao_2pin_esquerda" (at 0 -8) (layer "F.Fab")
+    (effects (font (size 1 1) (thickness 0.15)))
+  )
+
+  (fp_line (start -1.5 1.5) (end -1.5 -6.5) (layer "F.SilkS") (stroke (width 0.12) (type solid)))
+  (fp_line (start -1.5 -6.5) (end 1.5 -6.5) (layer "F.SilkS") (stroke (width 0.12) (type solid)))
+  (fp_line (start 1.5 -6.5) (end 1.5 1.5) (layer "F.SilkS") (stroke (width 0.12) (type solid)))
+  (fp_line (start 1.5 1.5) (end -1.5 1.5) (layer "F.SilkS") (stroke (width 0.12) (type solid)))
+
+  (fp_line (start -1.5 1.5) (end -0.5 1.5) (layer "F.SilkS") (stroke (width 0.3) (type solid)))
+  (fp_line (start -1.5 1.5) (end -1.5 0.5) (layer "F.SilkS") (stroke (width 0.3) (type solid)))
+
+  (fp_line (start -2 2) (end -2 -7) (layer "F.CrtYd") (stroke (width 0.05) (type solid)))
+  (fp_line (start -2 -7) (end 2 -7) (layer "F.CrtYd") (stroke (width 0.05) (type solid)))
+  (fp_line (start 2 -7) (end 2 2) (layer "F.CrtYd") (stroke (width 0.05) (type solid)))
+  (fp_line (start 2 2) (end -2 2) (layer "F.CrtYd") (stroke (width 0.05) (type solid)))
+
+  (pad "1" thru_hole rect   (at 0 0)     (size 2.2 2.2) (drill 1.1) (layers "*.Cu" "*.Mask"))
+  (pad "2" thru_hole circle (at 0 -5.08) (size 2.2 2.2) (drill 1.1) (layers "*.Cu" "*.Mask"))
+)
