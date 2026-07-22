@@ -70,7 +70,7 @@ Todos os materiais necessários para recriar este projeto estão na [branch de a
 ---
 
 ## Agradecimentos
-### Um agradecimento a todas as pessoas e às empresas que colaboraram e apoiaram este projeto:
+### Um agradecimento a todos e às empresas que colaboraram e apoiaram este projeto:
 
 <img src="https://raw.githubusercontent.com/Jaquetaa/Ember/arquivos/assets/spacer.png" width="1" height="1"/> <p align="center"> <img src="https://raw.githubusercontent.com/Jaquetaa/Ember/arquivos/assets/empresas-big-love/aralab.png" alt="Aralab" width="41%"/> &nbsp;&nbsp;&nbsp; <img src="https://raw.githubusercontent.com/Jaquetaa/Ember/arquivos/assets/empresas-big-love/tekever.png?raw=true" alt="Tekever" width="55%"/> </p> <h3 align="center">  O vosso apoio foi fundamental ao longo deste percurso e ficará sempre reconhecido.
 
