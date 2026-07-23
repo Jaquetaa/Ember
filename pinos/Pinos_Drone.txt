@@ -40,3 +40,9 @@ vcc
 gnd
 calibracao 3
 skip_preheat 39
+
+cam
+vcc
+gnd
+sda 41
+scl 42
