@@ -73,18 +73,9 @@ Todos os materiais necessários para recriar este projeto estão na [branch de a
 ### Um agradecimento a todos e às empresas que colaboraram e apoiaram este projeto:
 
 
-<p align="center">
-  <a href="https://www.aralab.pt/">
-    <img src="https://raw.githubusercontent.com/Jaquetaa/Ember/arquivos/assets/empresas-big-love/aralab.png" alt="Aralab" width="41%"/>
-  </a>
-  &nbsp;&nbsp;&nbsp;
-  <a href="https://www.tekever.com/">
-    <img src="https://raw.githubusercontent.com/Jaquetaa/Ember/arquivos/assets/empresas-big-love/tekever.png?raw=true" alt="Tekever" width="55%"/>
-  </a>
-</p>
+<p align="center"><a href="https://www.aralab.pt/"><img src="https://raw.githubusercontent.com/Jaquetaa/Ember/arquivos/assets/empresas-big-love/aralab.png" alt="Aralab" width="41%"/></a>&nbsp;&nbsp;&nbsp;<a href="https://www.tekever.com/"><img src="https://raw.githubusercontent.com/Jaquetaa/Ember/arquivos/assets/empresas-big-love/tekever.png?raw=true" alt="Tekever" width="55%"/></a></p>
 
-<h3 align="center">
-O vosso apoio foi fundamental ao longo deste percurso e ficará sempre reconhecido.
+<h3 align="center"> O vosso apoio foi fundamental ao longo deste percurso e ficará sempre reconhecido.
 
 Obrigado por tornarem este projeto possível.
 </h3>
