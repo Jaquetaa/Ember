@@ -56,4 +56,4 @@ Todos os materiais necessários para recriar este projeto ([listas de componente
 
 ## Apresentação e Relatório da PAP
 
-Não vamos incluir apresentações nem relatórios relacionados ao projeto por motivos de privacidade e prevenção de plágio.
+Não vamos incluir apresentações/relatórios relacionados ao projeto por motivos de privacidade e prevenção de plágio.
