@@ -186,4 +186,5 @@
  .pio/libdeps/esp32-s3-devkitm-1/RF24/RF24.h \
  .pio/libdeps/esp32-s3-devkitm-1/RF24/RF24_config.h \
  .pio/libdeps/esp32-s3-devkitm-1/RF24/nRF24L01.h \
- lib/EmberCAMNRF/EmberCAMNRF.h lib/EmberCalibration/EmberCalibration.h
+ lib/EmberCAMNRF/EmberCAMNRF.h lib/EmberCalibration/EmberCalibration.h \
+ lib/EmberConnectionEmergency/EmberConnectionEmergency.h

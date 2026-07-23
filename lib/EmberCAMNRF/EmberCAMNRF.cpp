@@ -279,6 +279,8 @@ void EmberCAMNRF::update() {
       return;
     }
     mlxFails = 0;
+    _everGotFrame    = true;
+    _lastGoodFrameMs = millis();
 
     // Normaliza as 768 temperaturas float para bytes 0-255 no intervalo
     // TEMP_MIN-TEMP_MAX: resolução de (60-20)/255 = 0.16 °C por bit.

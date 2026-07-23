@@ -90,6 +90,7 @@
 #include "EmberDroneNRF.h"
 #include "EmberCAMNRF.h"   // header leve: sem MLX/RF24/Wire
 #include "EmberCalibration.h"
+#include "EmberConnectionEmergency.h"
 
 // LEDC directo (bypass ESP32Servo). ESP32Servo@3.1.3 no ESP32-S3 prefere
 // MCPWM para Servo em freq fixa e trava dentro de mcpwm_init() com esta
@@ -148,9 +149,9 @@
 // -----------------------------------
 
 // HobbyKing 20A ESC: range de pulso 1000-2000 us
-const int THROTTLE_NORMAL = 2000;
+const int THROTTLE_NORMAL = 1450; 
 const int THROTTLE_Y_LOW  = 1200;
-const int THROTTLE_Y_HIGH = 2200;
+const int THROTTLE_Y_HIGH = 1470; // se isto for demais baixa para 1460
 const int THROTTLE_MIN    = 1000;
 const int THROTTLE_ARM    = 1100;
 const int YAW_MAX         = 100;
@@ -158,8 +159,26 @@ const int YAW_MAX         = 100;
 const int RAMP_STEP  = 2;
 const int RAMP_DELAY = 20;
 
-// ESC3 tem um offset fixo de throttle face aos restantes ESC (compensação de motor).
-const int ESC3_TRIM = 0;
+// Offset fixo de throttle por ESC, para compensar diferenças físicas entre motores.
+// Ajusta cada valor individualmente conforme necessário.
+const int ESC1_TRIM = 32;
+const int ESC2_TRIM = 105;
+const int ESC3_TRIM = 10;
+const int ESC4_TRIM = 25;
+
+// -----------------------------------
+// EmberConnectionEmergency: paragem de emergência automática
+// -----------------------------------
+
+// Toggle: se true, perder a ligação com a câmara térmica (rádio NRF
+// térmico e/ou sensor MLX90640 sem frame válido) dispara
+// emergencyStop() automaticamente. Muda para false para desativar
+// (ex.: testes em bancada sem câmara ligada).
+const bool CAMERA_CONNECTION_EMERGENCY_ENABLED = true;
+
+// Tempo máximo (ms) sem frame térmico válido antes de considerar a
+// ligação com a câmara perdida.
+const uint32_t CAMERA_CONNECTION_TIMEOUT_MS = 1200UL;
 
 // -----------------------------------
 // Canais LEDC e conversão de microsegundos para ticks
@@ -190,14 +209,22 @@ bool disarming       = false;
 int  currentThrottle = THROTTLE_MIN;
 int  targetThrottle  = THROTTLE_MIN;
 
+// Trim atual (aplicado) e trim alvo por ESC. Em vez de somar o trim de
+// uma so vez (o que causava um desequilibrio brusco entre motores ao
+// armar), o trim sobe/desce gradualmente em passos de RAMP_STEP a cada
+// RAMP_DELAY ms, em sincronia com o ramp do throttle (ver rampToTarget).
+int currentTrim1 = 0, currentTrim2 = 0, currentTrim3 = 0, currentTrim4 = 0;
+int targetTrim1  = 0, targetTrim2  = 0, targetTrim3  = 0, targetTrim4  = 0;
+
 // -----------------------------------
 // Instâncias das classes Ember
 // -----------------------------------
 
-EmberSensor       sensores;
-EmberDroneNRF     controlRX;
-EmberCAMNRF       thermalTX;
-EmberCalibration  calibration;
+EmberSensor              sensores;
+EmberDroneNRF            controlRX;
+EmberCAMNRF              thermalTX;
+EmberCalibration         calibration;
+EmberConnectionEmergency camEmergency;
 
 // -----------------------------------
 // Estado do rádio de controlo
@@ -220,12 +247,16 @@ bool lastRadioArmed = false;
 void writeAllESCs(int us) {
   uint32_t d = escUsToDuty((uint32_t)us);
   // Nao aplicar trim em THROTTLE_MIN: e o valor de parado/desarmado,
-  // e somar o trim aqui fazia o ESC3 arrancar sozinho com o drone desligado.
-  uint32_t d3 = (us <= THROTTLE_MIN) ? d : escUsToDuty((uint32_t)constrain(us + ESC3_TRIM, 1000, 2000));
-  ledcWrite(ESC1_CH, d);
-  ledcWrite(ESC2_CH, d);
+  // e somar o trim aqui fazia os ESCs arrancarem sozinhos com o drone desligado.
+  bool applyTrim = us > THROTTLE_MIN;
+  uint32_t d1 = applyTrim ? escUsToDuty((uint32_t)constrain(us + currentTrim1, 1000, 2000)) : d;
+  uint32_t d2 = applyTrim ? escUsToDuty((uint32_t)constrain(us + currentTrim2, 1000, 2000)) : d;
+  uint32_t d3 = applyTrim ? escUsToDuty((uint32_t)constrain(us + currentTrim3, 1000, 2000)) : d;
+  uint32_t d4 = applyTrim ? escUsToDuty((uint32_t)constrain(us + currentTrim4, 1000, 2000)) : d;
+  ledcWrite(ESC1_CH, d1);
+  ledcWrite(ESC2_CH, d2);
   ledcWrite(ESC3_CH, d3);
-  ledcWrite(ESC4_CH, d);
+  ledcWrite(ESC4_CH, d4);
 }
 
 // -----------------------------------
@@ -241,11 +272,14 @@ void writeESCsWithYaw(int base, int yaw) {
   int safeMin = armed ? THROTTLE_ARM + 50 : THROTTLE_MIN;
   int a = constrain(base + yaw, safeMin, 2000);
   int b = constrain(base - yaw, safeMin, 2000);
-  int c = armed ? constrain(b + ESC3_TRIM, safeMin, 2000) : b;
-  ledcWrite(ESC1_CH, escUsToDuty((uint32_t)a));
-  ledcWrite(ESC2_CH, escUsToDuty((uint32_t)b));
-  ledcWrite(ESC3_CH, escUsToDuty((uint32_t)c));
-  ledcWrite(ESC4_CH, escUsToDuty((uint32_t)a));
+  int e1 = armed ? constrain(a + currentTrim1, safeMin, 2000) : a;
+  int e2 = armed ? constrain(b + currentTrim2, safeMin, 2000) : b;
+  int e3 = armed ? constrain(b + currentTrim3, safeMin, 2000) : b;
+  int e4 = armed ? constrain(a + currentTrim4, safeMin, 2000) : a;
+  ledcWrite(ESC1_CH, escUsToDuty((uint32_t)e1));
+  ledcWrite(ESC2_CH, escUsToDuty((uint32_t)e2));
+  ledcWrite(ESC3_CH, escUsToDuty((uint32_t)e3));
+  ledcWrite(ESC4_CH, escUsToDuty((uint32_t)e4));
 }
 
 // -----------------------------------
@@ -263,10 +297,10 @@ void writeESCsWithYaw(int base, int yaw) {
 //   Tras
 void writeESCsWithAll(int base, int yaw, int pitch, int roll) {
   int safeMin = armed ? THROTTLE_ARM + 50 : THROTTLE_MIN;
-  int e1 = constrain(base + yaw + pitch + roll, safeMin, 2000); // FE CW
-  int e2 = constrain(base - yaw + pitch - roll, safeMin, 2000); // FD CCW
-  int e3 = constrain(base - yaw - pitch + roll + ESC3_TRIM, safeMin, 2000); // TE CCW (+ trim fixo)
-  int e4 = constrain(base + yaw - pitch - roll, safeMin, 2000); // TD CW
+  int e1 = constrain(base + yaw + pitch + roll + currentTrim1, safeMin, 2000); // FE CW
+  int e2 = constrain(base - yaw + pitch - roll + currentTrim2, safeMin, 2000); // FD CCW
+  int e3 = constrain(base - yaw - pitch + roll + currentTrim3, safeMin, 2000); // TE CCW
+  int e4 = constrain(base + yaw - pitch - roll + currentTrim4, safeMin, 2000); // TD CW
   ledcWrite(ESC1_CH, escUsToDuty((uint32_t)e1));
   ledcWrite(ESC2_CH, escUsToDuty((uint32_t)e2));
   ledcWrite(ESC3_CH, escUsToDuty((uint32_t)e3));
@@ -277,14 +311,31 @@ void writeESCsWithAll(int base, int yaw, int pitch, int roll) {
 // Ramp não bloqueante
 // -----------------------------------
 
+// Aproxima "value" de "target" em, no maximo, RAMP_STEP por chamada.
+static inline int rampToward(int value, int target) {
+  if (abs(value - target) <= RAMP_STEP) return target;
+  return value + ((value < target) ? RAMP_STEP : -RAMP_STEP);
+}
+
 void rampToTarget() {
-  if (abs(currentThrottle - targetThrottle) > RAMP_STEP) {
-    currentThrottle += (currentThrottle < targetThrottle) ? RAMP_STEP : -RAMP_STEP;
-    currentThrottle = constrain(currentThrottle, THROTTLE_MIN, 2000);
-    writeAllESCs(currentThrottle);
-  } else {
-    currentThrottle = targetThrottle;
-    writeAllESCs(currentThrottle);
+  bool throttleDone = abs(currentThrottle - targetThrottle) <= RAMP_STEP;
+  currentThrottle = throttleDone ? targetThrottle
+                                  : constrain(currentThrottle + ((currentThrottle < targetThrottle) ? RAMP_STEP : -RAMP_STEP),
+                                              THROTTLE_MIN, 2000);
+
+  // Trim ramp-a em paralelo ao throttle (mesmo RAMP_STEP/RAMP_DELAY),
+  // para nao entrar de repente com o offset todo e desequilibrar os motores.
+  currentTrim1 = rampToward(currentTrim1, targetTrim1);
+  currentTrim2 = rampToward(currentTrim2, targetTrim2);
+  currentTrim3 = rampToward(currentTrim3, targetTrim3);
+  currentTrim4 = rampToward(currentTrim4, targetTrim4);
+
+  writeAllESCs(currentThrottle);
+
+  bool trimDone = currentTrim1 == targetTrim1 && currentTrim2 == targetTrim2 &&
+                  currentTrim3 == targetTrim3 && currentTrim4 == targetTrim4;
+
+  if (throttleDone && trimDone) {
     rampActive = false;
     if (disarming) {
       armed     = false;
@@ -306,7 +357,21 @@ void emergencyStop() {
   disarming       = false;
   targetThrottle  = THROTTLE_MIN;
   currentThrottle = THROTTLE_MIN;
+  currentTrim1 = 0; currentTrim2 = 0; currentTrim3 = 0; currentTrim4 = 0;
+  targetTrim1  = 0; targetTrim2  = 0; targetTrim3  = 0; targetTrim4  = 0;
   writeAllESCs(THROTTLE_MIN);
+}
+
+// -----------------------------------
+// Vigilância da ligação com a câmara térmica
+// -----------------------------------
+
+// Chamar sempre a par de thermalTX.update(): alimenta o
+// EmberConnectionEmergency com o estado atual da câmara e dispara
+// emergencyStop() automaticamente se a ligação cair (toggle
+// CAMERA_CONNECTION_EMERGENCY_ENABLED, ver junto aos trims).
+void updateCamEmergency() {
+  camEmergency.update(thermalTX.isConnected(CAMERA_CONNECTION_TIMEOUT_MS));
 }
 
 // -----------------------------------
@@ -325,6 +390,8 @@ static void calOnStart() {
   rampActive     = false;
   disarming      = false;
   targetThrottle = THROTTLE_MIN;
+  currentTrim1 = 0; currentTrim2 = 0; currentTrim3 = 0; currentTrim4 = 0;
+  targetTrim1  = 0; targetTrim2  = 0; targetTrim3  = 0; targetTrim4  = 0;
   lastRadioArmed = false;
   Serial.println("[GX] Calibracao iniciada — voo bloqueado, drone surdo a comandos.");
 }
@@ -336,6 +403,8 @@ static void calOnDone() {
   disarming      = false;
   targetThrottle = THROTTLE_MIN;
   currentThrottle= THROTTLE_MIN;
+  currentTrim1 = 0; currentTrim2 = 0; currentTrim3 = 0; currentTrim4 = 0;
+  targetTrim1  = 0; targetTrim2  = 0; targetTrim3  = 0; targetTrim4  = 0;
   lastRadioArmed = false;
   Serial.println("[GX] Calibracao concluida — pronto a receber novo ARM.");
 }
@@ -690,6 +759,10 @@ void setup() {
   // Passo 9: regista o botão de calibração e os callbacks de voo
   calibration.begin(CAL_BTN_PIN, calWriteAll, calOnStart, calOnDone);
 
+  // Passo 10: liga a vigilância da ligação com a câmara térmica.
+  // Toggle CAMERA_CONNECTION_EMERGENCY_ENABLED (ver junto aos trims).
+  camEmergency.begin(CAMERA_CONNECTION_EMERGENCY_ENABLED, emergencyStop);
+
   DBG("[EMBER] === Pronto ===\n");
 }
 
@@ -719,6 +792,9 @@ void loop() {
     }
     sensores.update();
     thermalTX.update();
+    // NAO chama updateCamEmergency() aqui: tal como o EMERGENCY STOP por
+    // radio (passo 3), a calibracao tem prioridade absoluta e ninguem
+    // mais pode escrever nos ESCs enquanto isBusy() for verdadeiro.
     return;
   }
 
@@ -767,6 +843,7 @@ void loop() {
     radioThrottle  = THROTTLE_MIN;
     radioYaw = 0; radioPitch = 0; radioRoll = 0;
     thermalTX.update();
+    updateCamEmergency();
     return;
   }
 
@@ -832,6 +909,11 @@ void loop() {
         if (!disarming) {
           Serial.println("[GX] radio DISARM (ramp down)");
           targetThrottle = THROTTLE_MIN;
+          // Trim desce a par do throttle, em vez de cair de repente para 0.
+          targetTrim1    = 0;
+          targetTrim2    = 0;
+          targetTrim3    = 0;
+          targetTrim4    = 0;
           rampActive     = true;
           disarming      = true;
         }
@@ -849,6 +931,10 @@ void loop() {
           else if (reqThrottle >= THROTTLE_Y_HIGH) reqThrottle = THROTTLE_Y_HIGH;
           targetThrottle  = reqThrottle;
           currentThrottle = THROTTLE_MIN;
+          // Trim sobe a par do throttle, em vez de entrar todo de repente.
+          currentTrim1 = 0; currentTrim2 = 0; currentTrim3 = 0; currentTrim4 = 0;
+          targetTrim1  = ESC1_TRIM; targetTrim2 = ESC2_TRIM;
+          targetTrim3  = ESC3_TRIM; targetTrim4 = ESC4_TRIM;
           rampActive      = true;
         }
         lastRadioArmed = radioArmed;
@@ -869,6 +955,7 @@ void loop() {
       rampToTarget();
     }
     thermalTX.update();
+    updateCamEmergency();
     return;
   }
 
@@ -893,4 +980,9 @@ void loop() {
 
   // Passo 9: câmara térmica (captura e transmissão em fatias)
   thermalTX.update();
+
+  // Passo 10: vigia a ligação com a câmara térmica; dispara
+  // emergencyStop() automaticamente se a ligação cair (toggle
+  // CAMERA_CONNECTION_EMERGENCY_ENABLED, ver junto aos trims).
+  updateCamEmergency();
 }

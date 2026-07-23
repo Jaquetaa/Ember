@@ -79,6 +79,14 @@ public:
   bool begin(uint8_t cePin, uint8_t csnPin, uint8_t sdaPin, uint8_t sclPin, SPIClass &spi);
   void update();
 
+  // true se o hardware (NRF + MLX) inicializou e um frame termico valido
+  // foi lido ha menos de timeoutMs. Usado pelo EmberConnectionEmergency
+  // para detetar perda de ligacao com a camara.
+  bool isConnected(uint32_t timeoutMs) const {
+    return _nrfOK && _mlx != nullptr && _everGotFrame &&
+           (millis() - _lastGoodFrameMs < timeoutMs);
+  }
+
 private:
   void *_radio = nullptr;      // RF24* cast internamente no .cpp
   void *_mlx = nullptr;        // Adafruit_MLX90640* cast internamente no .cpp
@@ -86,6 +94,9 @@ private:
   uint32_t _frameCount = 0;
   float   *_mlxFrame = nullptr;
   uint8_t *_thermalData = nullptr;
+
+  bool     _everGotFrame  = false; // true apos o 1o getFrame() bem sucedido
+  uint32_t _lastGoodFrameMs = 0;   // millis() do ultimo frame termico valido
 
   uint8_t _sdaPin = 0;
   uint8_t _sclPin = 0;
