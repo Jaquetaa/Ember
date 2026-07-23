@@ -55,11 +55,11 @@ Este projeto foi feito utilizando o editor de código [VSCode](https://code.visu
 
 #### Gonçalo Teixeira
 
-Vai ser responsável pela montagem e apresentação do **[drone](https://github.com/Jaquetaa/Ember/tree/gon%C3%A7alo)**.
+Vai ser responsável pela montagem e apresentação do **[drone](https://github.com/Jaquetaa/Ember/tree/drone)**.
 
 #### Tiago Brito
 
-Vai ser responsável pela montagem e apresentação do **[comando](https://github.com/Jaquetaa/Ember/tree/tiago)**.
+Vai ser responsável pela montagem e apresentação do **[comando](https://github.com/Jaquetaa/Ember/tree/comando)**.
 
 ---
 
