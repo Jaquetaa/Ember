@@ -7,7 +7,7 @@
 ---
 
 > [!CAUTION]
-> **Esta branch é apenas usada para backups de progresso antigos, lê mais abaixo**
+> **Esta branch é apenas usada para backups de progresso antigos, lê mais abaixo.**
 
 ---
 
