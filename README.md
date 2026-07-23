@@ -8,8 +8,6 @@
 
 > [!CAUTION]
 > **Este projeto é dividido em duas partes!**
->
-> As branch's do projeto foram divididas já que são dois microcontroladores.
 > 
 > **Todo o código pode ser achado nas branches [(Drone)](https://github.com/Jaquetaa/Ember/tree/drone) e [(Comando)](https://github.com/Jaquetaa/Ember/tree/comando).**
 
