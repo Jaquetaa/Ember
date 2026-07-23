@@ -50,4 +50,10 @@ Este projeto foi feito utilizando o editor de código [VSCode](https://code.visu
 
 Todos os materiais necessários para recriar este projeto ([listas de componentes](https://github.com/Jaquetaa/Ember/blob/arquivos/PAP%20Ember.xlsx), etc.) estão aqui.
 
-**Nós não chegamos a usar as placas de circuito impresso, mas os ficheiros (e pinos) correspondem tudo, basta encomendar e montar.**
+**Nós não chegamos a usar as placas de circuito impresso, mas os ficheiros (e pinos) correspondem corretamente, basta encomendar e montar.**
+
+---
+
+## Apresentação e Relatório da PAP
+
+Não vamos incluir apresentações nem relatórios relacionados ao projeto por motivos de privacidade e prevenção de plágio.
