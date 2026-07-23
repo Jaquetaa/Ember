@@ -54,8 +54,6 @@ Esta branch é só responsável pela parte do código do comando, dá upload no 
 
 ---
 
----
-
 ## Agradecimentos
 ### Um agradecimento a todos e às empresas que colaboraram e apoiaram este projeto:
 
