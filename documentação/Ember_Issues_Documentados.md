@@ -49,5 +49,3 @@ Caso fores recriar este projeto, tem aqui problemas (mais importantes) e soluç�
 ### #32 — Encontrar o ponto de hover
 **Problema:** Necessário o drone montado por completo (peso final) para calibrar o ponto de hover.
 **Solução:** Varia com a hélice, bateria, motor... Ajusta o valor em Gonçalo_Ember.ino (Drone)
-
-Nota: Possivelmente a hélice na PAP_Ember.xlsx não têm potência o suficiente para ser fluido o suficiente, se quiseres podes dar upgrade para um motor A2216 com ESC's de 40A.
