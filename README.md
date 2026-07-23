@@ -54,13 +54,14 @@ Esta branch é só responsável pela parte do código do comando, dá upload no 
 
 ---
 
+---
+
 ## Agradecimentos
 ### Um agradecimento a todos e às empresas que colaboraram e apoiaram este projeto:
 
-<img src="https://raw.githubusercontent.com/Jaquetaa/Ember/arquivos/assets/spacer.png" width="1" height="1"/> <p align="center"> <img src="https://raw.githubusercontent.com/Jaquetaa/Ember/arquivos/assets/empresas-big-love/aralab.png" alt="Aralab" width="41%"/> &nbsp;&nbsp;&nbsp; <img src="https://raw.githubusercontent.com/Jaquetaa/Ember/arquivos/assets/empresas-big-love/tekever.png?raw=true" alt="Tekever" width="55%"/> </p> <h3 align="center">  O vosso apoio foi fundamental ao longo deste percurso e ficará sempre reconhecido.
+<p align="center"><a href="https://www.aralab.pt/"><img src="https://raw.githubusercontent.com/Jaquetaa/Ember/arquivos/assets/empresas-big-love/aralab.png" alt="Aralab" width="41%"/></a>&nbsp;&nbsp;&nbsp;<a href="https://www.tekever.com/"><img src="https://raw.githubusercontent.com/Jaquetaa/Ember/arquivos/assets/empresas-big-love/tekever.png?raw=true" alt="Tekever" width="55%"/></a></p>
+
+<h3 align="center"> O vosso apoio foi fundamental ao longo deste percurso e ficará sempre reconhecido.
 
 Obrigado por tornarem este projeto possível.
-
-</h3>
-
 </h3>
