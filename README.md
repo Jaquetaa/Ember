@@ -48,9 +48,9 @@ Este projeto foi feito utilizando o editor de código [VSCode](https://code.visu
 
 ## Como Montar (Comando)
 
-Todos os materiais necessários para recriar este projeto estão na [branch de arquivos](https://github.com/Jaquetaa/Ember/tree/arquivos), basta encomendar e montar. :)
+Todos os materiais/pinos para recriar este projeto estão na [branch de arquivos](https://github.com/Jaquetaa/Ember/tree/arquivos), basta encomendar e montar. :)
 
-Esta branch é só responsável pela parte do código do comando, dá upload deste código com os pinos e materiais corretos.
+Esta branch é só responsável pela parte do código do comando, dá upload no código com os pinos e materiais corretos.
 
 ---
 
