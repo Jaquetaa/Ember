@@ -15,5 +15,4 @@ Sendo uma prova de conceito, não foi otimizada para alcance máximo.
 Por motivos de segurança, correr o código de calibração (`(drone)/older/CALIBRAR.ino`) com as hélices retiradas dos motores (recomendo), ou usar a built-in calibração (não recomendo)
 
 ## Peso
-Atualmente 1.1kg. O drone quase levanta voo, faltam testes adicionais já que havia hélices trocadas entre motores (#46).
-Estado: Para fazer (#46)
+Atualmente 1.1kg, levanta voo (tens que levantar o drone com CUIDADO por segurança)
